@@ -1,0 +1,14 @@
+.conda_env/
+data/
+1_transport/intermediates/
+2_matching/intermediates/
+2_matching/figures/
+3_inversion/intermediates/
+3_inversion/figures/
+4_results/intermediates/
+4_results/figures/
+4_results/products/
+.Rhistory
+docs
+documentation
+utils

@@ -1,0 +1,272 @@
+---
+title: "Validating matching against the base run"
+params:
+  base_path: a
+  oco2_soundings: a
+  tccon_sounding_directory: a
+  obspack_directory: a
+output:
+  pdf_document
+---
+
+```{r}
+library(fst)
+library(ggplot2)
+library(dplyr, warn.conflicts = FALSE)
+library(lubridate, warn.conflicts = FALSE)
+library(tidyr)
+library(ncdf4)
+library(parallel)
+
+source('partials/utils.R')
+
+run_start_time <- ymd_hms('2014-09-01 00:00:00')
+run_end_time <- ymd_hms('2021-04-01 00:00:00')
+```
+
+# ObsPack (assim = 1)
+
+```{r}
+obspack_daily <- read_fst(file.path(params$base_path, 'obspack-daily-assim-1.fst')) %>%
+  mutate(observation_id = as.character(observation_id)) %>%
+  arrange(observation_id)
+obspack_hourly <- read_fst(file.path(params$base_path, 'obspack-hourly-assim-1.fst')) %>%
+  mutate(observation_id = as.character(observation_id)) %>%
+  arrange(observation_id)
+obspack_paths <- list.files(params$obspack_directory, full.names = TRUE)
+obspack_times <- strptime(
+  basename(obspack_paths),
+  'obspack_co2_1_OCO2MIP_v3.2_2021-05-20.%Y%m%d.nc'
+)
+# NOTE(mgnb): add a few days buffer to account for overlap
+obspack_paths <- obspack_paths[
+  obspack_times >= (run_start_time - days(2))
+  & obspack_times <= (run_end_time + days(2))
+]
+obspack <- bind_rows(mclapply(obspack_paths, function(path) {
+  fn <- nc_open(path)
+  on.exit(nc_close(fn))
+  v <- function(...) ncdf4::ncvar_get(fn, ...)
+  tibble(
+    observation_id = as.vector(v('obspack_id')),
+    assimilate = as.vector(v('CT_assim')),
+    time = ncvar_get_time(fn, 'time'),
+    value = 1e6 * as.vector(v('value'))
+  ) %>%
+    filter(
+      assimilate == 1,
+      observation_id %in% obspack_daily$observation_id
+    )
+}, mc.cores = get_cores())) %>%
+  mutate(
+    site = stringr::str_split(observation_id, '~', simplify = TRUE)[, 2]
+  )
+
+# Alignment between ObsPack daily and hourly
+stopifnot(length(unique(obspack_hourly$observation_id)) == nrow(obspack_hourly))
+stopifnot(length(unique(obspack_daily$observation_id)) == nrow(obspack_daily))
+stopifnot(all(obspack_daily$observation_id == obspack_hourly$observation_id))
+print(cor(obspack_daily$value, obspack_hourly$value))
+print(mean(obspack_daily$value - obspack_hourly$value))
+print(sd(obspack_daily$value - obspack_hourly$value))
+```
+
+```{r}
+ggplot(
+  obspack %>%
+    filter(
+      site %in% sample(site, 10)
+    ) %>%
+    left_join(
+      obspack_daily %>%
+        select(observation_id, value_daily = value),
+      by = 'observation_id'
+    ) %>%
+    left_join(
+      obspack_hourly %>%
+        select(observation_id, value_hourly = value),
+      by = 'observation_id'
+    ),
+  aes(time)
+) +
+  geom_line(mapping = aes(y = value)) +
+  geom_line(mapping = aes(y = value_daily), col = 'blue') +
+  geom_line(mapping = aes(y = value_hourly), col = 'red') +
+  facet_wrap(~ site, ncol = 5)
+```
+
+```{r}
+ggplot(
+  obspack %>%
+    filter(
+      time < '2014-09-14'
+    ) %>%
+    filter(
+      site %in% sample(site, 20)
+    ) %>%
+    left_join(
+      obspack_daily %>%
+        select(observation_id, value_daily = value),
+      by = 'observation_id'
+    ) %>%
+    left_join(
+      obspack_hourly %>%
+        select(observation_id, value_hourly = value),
+      by = 'observation_id'
+    ),
+  aes(time)
+) +
+  geom_line(mapping = aes(y = value)) +
+  geom_line(mapping = aes(y = value_daily), col = 'blue') +
+  geom_line(mapping = aes(y = value_hourly), col = 'red') +
+  facet_wrap(~ site, ncol = 5)
+```
+
+# OCO-2
+
+```{r}
+oco2_daily <- read_fst(file.path(params$base_path, 'oco2-daily.fst')) %>%
+  mutate(observation_id = as.character(observation_id))
+oco2_hourly <- read_fst(file.path(params$base_path, 'oco2-hourly.fst')) %>%
+  mutate(observation_id = as.character(observation_id))
+
+with_nc_file(list(fn = params$oco2_soundings), {
+  v <- function(...) ncvar_get(fn, ...)
+  oco2 <- tibble(
+    observation_id = as.character(v('sounding_id')),
+    time = ncvar_get_time(fn, 'time'),
+    longitude = as.vector(v('longitude')),
+    latitude = as.vector(v('latitude')),
+    value = v('xco2')
+  ) %>%
+    filter(time >= run_start_time, time < run_end_time)
+})
+
+stopifnot(all(oco2$observation_id == oco2_hourly$observation_id))
+stopifnot(all(oco2_daily$observation_id == oco2_hourly$observation_id))
+print(cor(oco2_daily$value, oco2_hourly$value))
+print(mean(oco2_daily$value - oco2_hourly$value))
+print(sd(oco2_daily$value - oco2_hourly$value))
+
+oco2_joined <- oco2 %>%
+  select(time, observation_id, longitude, latitude, value) %>%
+  left_join(
+    oco2_daily %>%
+      select(observation_id, value_daily = value),
+    by = 'observation_id'
+  ) %>%
+  left_join(
+    oco2_hourly %>%
+      select(observation_id, value_hourly = value),
+    by = 'observation_id'
+  ) %>%
+  select(-observation_id) %>%
+  pivot_longer(-c(longitude, latitude, time)) %>%
+  mutate(
+    day = as.character(floor_date(time, 'day'))
+  )
+
+ggplot(
+  oco2_joined %>%
+    filter(
+      time >= '2016-09-07',
+      time < '2016-09-14'
+    ) %>%
+    mutate(
+      tod = 60 * hour(time) + minute(time) + second(time) / 60
+    ),
+  aes(tod, value, colour = name)
+) +
+  geom_line() +
+  facet_wrap(~ day, ncol = 3)
+```
+
+```{r}
+ggplot(
+  oco2_joined %>%
+    filter(time < '2014-09-14'),
+  aes(longitude, latitude, colour = value)
+) +
+  geom_point() +
+  coord_quickmap() +
+  facet_grid(day ~ name) +
+  scale_colour_distiller(palette = 'Spectral')
+```
+
+# TCCON
+
+```{r}
+tccon_daily <- read_fst(file.path(params$base_path, 'tccon-daily.fst')) %>%
+  mutate(observation_id = as.character(observation_id))
+tccon_hourly <- read_fst(file.path(params$base_path, 'tccon-hourly.fst')) %>%
+  mutate(observation_id = as.character(observation_id))
+
+tccon_paths <- list.files(params$tccon_sounding_directory, full.names = TRUE)
+tccon_times <- strptime(basename(tccon_paths), 'tccon_timeavg_%Y%m%d.nc4')
+tccon_paths <- tccon_paths[
+  tccon_times >= run_start_time & tccon_times < run_end_time
+]
+tccon <- bind_rows(mclapply(tccon_paths, function(filename) {
+  with_nc_file(list(fn = filename), {
+    v <- function(name, ...) ncvar_get(fn, sprintf('CO2/%s', name), collapse_degen = FALSE, ...)
+    cdate <- v('cdate')
+    tibble(
+      observation_id = as.character(as.vector(v('obs_num'))),
+      time = ymd_hms(sprintf(
+        '%04d-%02d-%02d %02d:%02d:%02d',
+        cdate[1, ], cdate[2, ], cdate[3, ], cdate[4, ], cdate[5, ], cdate[6, ]
+      )),
+      longitude = as.vector(v('longitude')),
+      latitude = as.vector(v('latitude')),
+      value = as.vector(v('column_mixing'))
+    )
+  })
+}, mc.cores = get_cores())) %>%
+  mutate(
+    station_id = substring(observation_id, 15, 16)
+  )
+
+stopifnot(all(tccon$observation_id == tccon_hourly$observation_id))
+stopifnot(all(tccon_daily$observation_id == tccon_hourly$observation_id))
+print(cor(tccon_daily$value, tccon_hourly$value))
+print(mean(tccon_daily$value - tccon_hourly$value))
+print(sd(tccon_daily$value - tccon_hourly$value))
+
+tccon_joined <- tccon %>%
+  select(time, observation_id, station_id, longitude, latitude, value) %>%
+  left_join(
+    tccon_daily %>%
+      select(observation_id, value_daily = value),
+    by = 'observation_id'
+  ) %>%
+  left_join(
+    tccon_hourly %>%
+      select(observation_id, value_hourly = value),
+    by = 'observation_id'
+  ) %>%
+  select(-observation_id) %>%
+  pivot_longer(-c(station_id, longitude, latitude, time)) %>%
+  mutate(
+    day = as.character(floor_date(time, 'day'))
+  )
+
+ggplot(
+  tccon_joined,
+  aes(time, value, colour = name)
+) +
+  geom_line() +
+  facet_wrap(~ station_id)
+```
+
+```{r}
+ggplot(
+  tccon_joined %>%
+    filter(
+      time >= '2015-01-01',
+      time < '2015-01-14'
+    ),
+  aes(time, value, colour = name)
+) +
+  geom_line() +
+  facet_wrap(~ station_id)
+```
