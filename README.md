@@ -2,7 +2,7 @@
 
 This repository contains code to reproduce the results in the paper [Inferring changes to the global carbon cycle with WOMBAT v2.0, a hierarchical flux-inversion framework](...). This README assumes familiarity with the paper.
 
-Code that implements the WOMBAT v2 framework is provided in the form of the CO2 application of the paper. With some work, this can also be modified to estimate fluxes for another trace gas.
+The code implements the WOMBAT v2 framework in the context of the CO2 application described in the paper. With some work, this can also be modified to estimate fluxes for another trace gas.
 
 Unless stated otherwise, all commands are to be run in the root directory of the repository.
 
