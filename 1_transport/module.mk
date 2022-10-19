@@ -31,7 +31,7 @@ $(SIB4_MONTHLY):
 		-monmean \
 		-vertsum \
 		-select,name=assim,resp_tot \
-		data/sib4-hourly/sib4-hourly-* \
+		$(SIB4_HOURLY_DIRECTORY)/sib4-hourly-* \
 		$@
 
 $(SIB4_HOURLY) &:
@@ -45,7 +45,7 @@ $(SIB4_HOURLY) &:
 		-mulc,1e-9 \
 		-vertsum \
 		-select,name=assim,resp_tot \
-		data/sib4-hourly/sib4-hourly-{2014,2015,2016,2017,2018,2019,2020}-* \
+		$(SIB4_HOURLY_DIRECTORY)/sib4-hourly-{2014,2015,2016,2017,2018,2019,2020}-* \
 		1_transport/intermediates/sib4-hourly-
 
 $(SIB4_CLIMATOLOGY_ASSIM): \
@@ -128,7 +128,6 @@ $(SIB4_RESIDUAL_RESP_TOT_HOURLY) &: \
 
 ## Oceans inventories
 
-LANDSCHUTZER_INVENTORY_INPUT = data/spco2_MPI-SOM_FFN_v2020.nc
 LANDSCHUTZER_INVENTORY = 1_transport/intermediates/spco2_MPI-SOM_FFN_v2020_raw.nc
 LANDSCHUTZER_CLIMATOLOGY = 1_transport/intermediates/spco2_MPI-SOM_FFN_v2020_climatology.nc
 LANDSCHUTZER_CLIMATOLOGY_INVENTORY = 1_transport/intermediates/spco2_MPI-SOM_FFN_v2020_climatology_inventory.nc
@@ -181,11 +180,6 @@ $(LANDSCHUTZER_INVENTORY_RESIDUAL): \
 
 ## Basis functions
 
-TRANSCOM_MASK_ORIGINAL_1X1 = data/TRANSCOM_mask_original_1x1.nc
-GEOS_CHEM_RESTART_FILE = data/GEOSChem.Restart.20140901_0000z.nc4
-GEOS_2X25_GRID = data/geos.2x25.grid
-FOSSIL_INVENTORY_PATH = data/fossil-mipv10
-FIRES_INVENTORY_PATH = data/GFED4.1s_Aleya_hemco_080321
 GEOS_CHEM_TEMPLATE_DIRECTORY = 1_transport/src/GEOS_Chem
 
 TRANSCOM_MASK_GEOS_2X25 = 1_transport/intermediates/TRANSCOM_mask_GEOS_Chem_2x2.5.nc
