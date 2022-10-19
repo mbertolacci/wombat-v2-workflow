@@ -24,8 +24,6 @@ OBSPACK_DIRECTORY = data/obspack_co2_1_OCO2MIP_v3.2_2021-05-20/data/daily
 TCCON_SOUNDING_DIRECTORY = data/downloaded_20211217
 LAUDER_DATA = data/lauder_co2_2014_2021.50_ooofti_lhr.csv
 
-OCO2_V10MIP_FLUX_TEMPLATE = data/OCO2_v10mip.flux1x1.template.nc
-
 all:
 	echo "Please refer to the README for instructions on how to run this project"
 

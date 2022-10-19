@@ -1,5 +1,4 @@
 .conda_env/
-data/
 1_transport/intermediates/
 2_matching/intermediates/
 2_matching/figures/

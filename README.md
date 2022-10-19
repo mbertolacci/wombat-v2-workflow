@@ -62,13 +62,15 @@ All input datasets go into the `data` directory. There are a few files already t
 In addition to those data sets already provided, the following data are needed to run the inversions:
 
 - Available from the [OCO-2 v10 MIP website](https://gml.noaa.gov/ccgg/OCO2_v10mip/download.php):
-  - OCO-2 10 s averages, in a file named `OCO2_b10c_10sec_GOOD_r5.nc4`
+  - 10s averages of the OCO-2 B10 retreivals, in a file named `OCO2_b10c_10sec_GOOD_r5.nc4`
   - The ObsPack measurements used by the v10 MIP, `obspack_co2_1_OCO2MIP_v3.2_2021-05-20`. These should be untarred into the data directory.
-  - The fossil-fuel emissions based on ODIAC. The files are needed for 2014 through to 2021.
+  - The TCCON retrievals in the file `downloaded_20211217.tgz`. These were not actually used in the paper, but are required for the matching step to work.
 - The Landschutzer ocean fluxes in the file `spco2_MPI-SOM_FFN_v2020.nc`, available from this [NOAA website](https://www.ncei.noaa.gov/data/oceans/ncei/ocads/data/0160558/MPI_SOM-FFN_v2020/)
-- Two additional data sets are needed that are not generally available at this time. Both of these can be provided upon request. These are:
+- Three additional data sets are needed that are not generally available at this time. These can be provided upon request, and we will endeavour to make them freely available. These are:
   - GFED4.1s fire emissions, preprocessed for ingestion by HEMCO
   - The SiB4 bottom-up estimates of GPP and respiration
+  - Fossil-fuel emissions based on ODIAC postprocessed for ingestion by HEMCO.
+  - Data for the Lauder CO2 collection site in NZ (not used in the project, but required for the matching step).
 
 GEOS-Chem requires meteorological fields and CO2 emission to run. These go into the `data/GEOS_Chem` directory (if you already have some of these, you could symlink them in). There are instructions for how to download these files on the [GEOS-Chem wiki](http://wiki.seas.harvard.edu/geos-chem/index.php/Downloading_data_from_Compute_Canada).
 
@@ -85,7 +87,7 @@ ExtData/HEMCO/CO2/v2015-04/BIOFUEL
 
 The most computationally expensive part of the workflow are steps 1 and 2 below, where the basis-function runs are computed and post-processed. To ease reproduction of the inversion results (steps 3 and 4 below), we can provide the necessarily post-processed outputs of steps 1 and 2 sufficient to run the inversion and generate the results. These can be provided by the author upon request.
 
-To use these, download the tar archive, then extract the files into the root directory of this repository with
+Once you have the archive, extract the files into the root directory of this repository with
 
 ```
 tar xzf ~/path/to/WOMBAT_v2_CO2_intermediates.tar.gz
