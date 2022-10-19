@@ -19,8 +19,8 @@ REGION_GRID = $(4_RESULTS_INTERMEDIATES_DIR)/region-grid.rds
 SIX_YEAR_AVERAGE = $(4_RESULTS_INTERMEDIATES_DIR)/six-year-average.fst
 
 4_RESULTS_TARGETS += \
-	$(4_RESULTS_PRODUCTS_DIR)/gridded-flux-samples.nc4 \
-	$(4_RESULTS_PRODUCTS_DIR)/gridded-climatology-samples.nc4 \
+	$(4_RESULTS_PRODUCTS_DIR)/WOMBAT_v2_CO2_gridded_flux_samples.nc4 \
+	$(4_RESULTS_PRODUCTS_DIR)/WOMBAT_v2_CO2_gridded_climatology_samples.nc4 \
 	$(4_RESULTS_FIGURES_DIR)/average-and-trend-map.pdf \
 	$(4_RESULTS_FIGURES_DIR)/harmonic-shift-global-zonal.pdf \
 	$(4_RESULTS_FIGURES_DIR)/harmonic-shift-land-transcoms.pdf \
@@ -63,7 +63,7 @@ SIX_YEAR_AVERAGE = $(4_RESULTS_INTERMEDIATES_DIR)/six-year-average.fst
 
 ## Products
 
-$(4_RESULTS_PRODUCTS_DIR)/gridded-flux-samples.nc4: \
+$(4_RESULTS_PRODUCTS_DIR)/WOMBAT_v2_CO2_gridded_flux_samples.nc4: \
 	$(4_RESULTS_SRC_DIR)/gridded-flux-samples.R \
 	$(BASIS_VECTORS) \
 	$(CONTROL_EMISSIONS) \
@@ -76,7 +76,7 @@ $(4_RESULTS_PRODUCTS_DIR)/gridded-flux-samples.nc4: \
 		--samples $(SAMPLES_LNLGIS) \
 		--output $@
 
-$(4_RESULTS_PRODUCTS_DIR)/gridded-climatology-samples.nc4: \
+$(4_RESULTS_PRODUCTS_DIR)/WOMBAT_v2_CO2_gridded_climatology_samples.nc4: \
 	$(4_RESULTS_SRC_DIR)/gridded-climatology-samples.R \
 	$(BASIS_VECTORS) \
 	$(CONTROL_EMISSIONS) \

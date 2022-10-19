@@ -371,26 +371,6 @@ parser$add_argument('--meteorology-run')
 parser$add_argument('--output')
 args <- parser$parse_args()
 
-# args <- list(
-#   oco2_soundings = 'data/OCO2_b10c_10sec_GOOD_r5.nc4',
-#   tccon_sounding_directory = 'data/downloaded_20211217',
-#   obspack_directory = 'data/obspack_co2_1_OCO2MIP_v3.2_2021-05-20/data/daily',
-#   lauder = 'data/lauder_co2_2014_2021.50_ooofti_lhr.csv',
-#   input_run = '1_transport/intermediates/runs-r10-r15-rNZ/residual_20210101_part001',
-#   meteorology_run = '1_transport/intermediates/runs-r10-r15-rNZ/base',
-#   output = '2_matching/intermediates/runs-r10-r15-rNZ/residual_20210101_part001'
-# )
-
-# args <- list(
-#   oco2_soundings = 'data/OCO2_b10c_10sec_GOOD_r5.nc4',
-#   tccon_sounding_directory = 'data/downloaded_20211217',
-#   obspack_directory = 'data/obspack_co2_1_OCO2MIP_v3.2_2021-05-20/data/daily',
-#   lauder = 'data/lauder_co2_2014_2021.50_ooofti_lhr.csv',
-#   input_run = '1_transport/intermediates/runs-r10-r15-rNZ/residual_20181001_part001',
-#   meteorology_run = '1_transport/intermediates/runs-r10-r15-rNZ/base',
-#   output = '2_matching/intermediates/runs-r10-r15-rNZ/residual_20181001_part001'
-# )
-
 all_runs <- list.files(dirname(args$input_run))
 input_runs <- sort(file.path(
   dirname(args$input_run),

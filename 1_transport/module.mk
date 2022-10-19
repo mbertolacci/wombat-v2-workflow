@@ -3,7 +3,7 @@ $(shell mkdir -p 1_transport/intermediates)
 CLIMATOLOGY_PARTIAL = 1_transport/src/partials/climatology.R
 export CLIMATOLOGY_PARTIAL
 
-1_TRANSPORT_TARGETS += 1_transport/intermediates/runs/RUNS
+1_TRANSPORT_TARGETS += 1_transport/intermediates/runs/RUNS 1_transport/intermediates/runs-r10-r15-rNZ/RUNS
 
 # Flux inventories
 
