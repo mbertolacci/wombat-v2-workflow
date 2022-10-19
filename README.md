@@ -1,6 +1,6 @@
-# Inferring changes to the global carbon cycle with WOMBAT \lowercase{v}2.0, a hierarchical flux-inversion framework
+# Inferring changes to the global carbon cycle with WOMBAT v2.0, a hierarchical flux-inversion framework
 
-This repository contains code to reproduce the results in the paper [Inferring changes to the global carbon cycle with WOMBAT \lowercase{v}2.0, a hierarchical flux-inversion framework](...). This README assumes familiarity with the paper.
+This repository contains code to reproduce the results in the paper [Inferring changes to the global carbon cycle with WOMBAT v2.0, a hierarchical flux-inversion framework](...). This README assumes familiarity with the paper.
 
 Code that implements the WOMBAT v2 framework is provided in the form of the CO2 application of the paper. With some work, this can also be modified to estimate fluxes for another trace gas.
 
@@ -66,13 +66,24 @@ In addition to those data sets already provided, the following data are needed t
   - The ObsPack measurements used by the v10 MIP, `obspack_co2_1_OCO2MIP_v3.2_2021-05-20`. These should be untarred into the data directory.
   - The fossil-fuel emissions based on ODIAC. The files are needed for 2014 through to 2021.
 - The Landschutzer ocean fluxes in the file `spco2_MPI-SOM_FFN_v2020.nc`, available from this [NOAA website](https://www.ncei.noaa.gov/data/oceans/ncei/ocads/data/0160558/MPI_SOM-FFN_v2020/)
-- Two additional data sets are needed that are not generally available at this time. Both of these can be provided upon request. Theseare :
+- Two additional data sets are needed that are not generally available at this time. Both of these can be provided upon request. These are:
   - GFED4.1s fire emissions, preprocessed for ingestion by HEMCO
   - The SiB4 bottom-up estimates of GPP and respiration
 
+GEOS-Chem requires meteorological fields and CO2 emission to run. These go into the `data/GEOS_Chem` directory (if you already have some of these, you could symlink them in). There are instructions for how to download these files on the [GEOS-Chem wiki](http://wiki.seas.harvard.edu/geos-chem/index.php/Downloading_data_from_Compute_Canada).
+
+The directories you need to download are:
+
+```
+ExtData/GEOS_2x2.5/MERRA2
+ExtData/CHEM_INPUTS/MODIS_LAI_201204
+ExtData/CHEM_INPUTS/Olson_Land_Map_201203
+ExtData/HEMCO/CO2/v2015-04/BIOFUEL
+```
+
 ## Intermediate files to reproduce just the inversion
 
-The most computationally expensive part of the workflow are steps 1 and 2 above, where the basis-function runs are computed. To ease reproduction of the inversion results (steps 3 and 4 above), we can provide the necessarily post-processed outputs of steps 1 and 2 sufficient to run the inversion and generate the results. These can be provided by the author upon request.
+The most computationally expensive part of the workflow are steps 1 and 2 below, where the basis-function runs are computed and post-processed. To ease reproduction of the inversion results (steps 3 and 4 below), we can provide the necessarily post-processed outputs of steps 1 and 2 sufficient to run the inversion and generate the results. These can be provided by the author upon request.
 
 To use these, download the tar archive, then extract the files into the root directory of this repository with
 
@@ -101,16 +112,16 @@ To set up the basis-function runs, run the command:
 WOMBAT_LOG_LEVEL=debug make -j4 1_transport_targets
 ```
 
-This will set up GEOS-Chem run directories in `1_transport/intermediates/runs` and `1_transport/intermediates/runs-r10-r15-rNZ`. In each folder, these is a base run called `base`. This does not need to be run, but it does need to have its code compiled by changing into the directory and calling make as follows:
+This will set up GEOS-Chem run directories in `1_transport/intermediates/runs` and `1_transport/intermediates/runs-r10-r15-rNZ`. In each folder, these is a base run called `base`. You need to compile the base run code compiled by changing into the directory and calling make as follows:
 
 ```
 (cd 1_transport/intermediates/runs && BPCH_DIAG=n make -j24 mpbuild)
 (cd 1_transport/intermediates/runs-r10-r15-rNZ && BPCH_DIAG=n make -j24 mpbuild)
 ```
 
-The other directories all symlink back to this directory to access the built GEOS-Chem executable.
+The code for the other directories all symlink back to this directory to access the built GEOS-Chem executable.
 
-Now you need to run all the others GEOS-Chem runs in these directories. Their outputs will require around 10TB of space. To run then, the simplest scheme is to change into a run directory and call geos.mp. For example:
+Now you need to run all the GEOS-Chem runs in these directories, including the base run. Their outputs will require around 10TB of space. To run then, the simplest scheme is to change into a run directory and call geos.mp. For example:
 
 ```
 (cd 1_transport/intermediates/runs/residual_20210301_part003 && OMP_NUM_THREADS=8 ./geos.mp)
