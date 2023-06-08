@@ -8,7 +8,7 @@ Unless stated otherwise, all commands are to be run in the root directory of the
 
 # Accessing the estimated fluxes and parameters
 
-The outputs of WOMBAT v2.0 for the application to CO2 are available upon request from the authors. These comprise samples from the posterior distribution of the model parameters, bottom-up estimates and samples from the posterior distribution of the fluxes, and bottom-up estimates and samples from the posterior distribution of the trend/seasonality terms.
+The outputs of WOMBAT v2.0 for the application to CO2 are [available on Zenodo](https://doi.org/10.5281/zenodo.8015839). These comprise samples from the posterior distribution of the model parameters, bottom-up estimates and samples from the posterior distribution of the fluxes, and bottom-up estimates and samples from the posterior distribution of the trend/seasonality terms.
 
 # Installation/setting up an environment
 
