@@ -35,7 +35,6 @@ if (is.na(match[4])) {
 } else {
   args$harmonic <- as.integer(match[4])
 }
-args$in_supplement <- !(args$harmonic == 1 && args$inventory == 'nee')
 
 region_grid <- readRDS(args$region_grid)
 fit_region_grid_df <- NULL
@@ -423,7 +422,7 @@ output <- wrap_plots(
       ))
     ),
     amplitude_column,
-    heights = c(0.07, 1)
+    heights = c(0.08, 1)
   ),
   wrap_plots(
     wrap_elements(
@@ -433,7 +432,7 @@ output <- wrap_plots(
       ))
     ),
     phase_column,
-    heights = c(0.07, 1)
+    heights = c(0.08, 1)
   ),
   nrow = 1
 )
@@ -441,10 +440,6 @@ output <- wrap_plots(
 ggsave_base(
   args$output,
   output,
-  width = if (args$in_supplement) {
-    DISPLAY_SETTINGS$supplement_full_width
-  } else {
-    DISPLAY_SETTINGS$full_width
-  },
-  height = if (args$in_supplement) 19.5 else 17.8
+  width = DISPLAY_SETTINGS$supplement_full_width,
+  height = 19.5
 )

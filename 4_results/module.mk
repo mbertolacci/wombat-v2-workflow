@@ -18,6 +18,13 @@ REGION_SF = $(4_RESULTS_INTERMEDIATES_DIR)/region-sf.rds
 REGION_GRID = $(4_RESULTS_INTERMEDIATES_DIR)/region-grid.rds
 SIX_YEAR_AVERAGE = $(4_RESULTS_INTERMEDIATES_DIR)/six-year-average.fst
 
+WOMBAT_V1_CONTROL_EMISSIONS = data/wombat-v1-control-emissions.fst
+WOMBAT_V1_PERTURBATIONS = data/wombat-v1-perturbations.fst
+WOMBAT_V1_XCO2_DAILY_BASE = data/wombat-v1-xco2-daily-base.nc
+WOMBAT_V1_XCO2_DAILY_201601R02 = data/wombat-v1-xco2-daily-201601R02.nc
+WOMBAT_V1_XCO2_DAILY_201601R06 = data/wombat-v1-xco2-daily-201601R06.nc
+
+
 4_RESULTS_TARGETS += \
 	$(4_RESULTS_PRODUCTS_DIR)/WOMBAT_v2_CO2_gridded_flux_samples.nc4 \
 	$(4_RESULTS_PRODUCTS_DIR)/WOMBAT_v2_CO2_gridded_climatology_samples.nc4 \
@@ -92,6 +99,23 @@ $(4_RESULTS_PRODUCTS_DIR)/WOMBAT_v2_CO2_gridded_climatology_samples.nc4: \
 		--output $@
 
 ## Figures
+
+$(4_RESULTS_FIGURES_DIR)/sensitivities.pdf: \
+	$(4_RESULTS_SRC_DIR)/sensitivities.R \
+	$(WOMBAT_V1_CONTROL_EMISSIONS) \
+	$(WOMBAT_V1_PERTURBATIONS) \
+	$(WOMBAT_V1_XCO2_DAILY_BASE) \
+	$(WOMBAT_V1_XCO2_DAILY_201601R02) \
+	$(WOMBAT_V1_XCO2_DAILY_201601R06) \
+	$(RESULTS_BASE_PARTIAL) \
+	$(RESULTS_DISPLAY_PARTIAL)
+	Rscript $< \
+		--control-emissions $(WOMBAT_V1_CONTROL_EMISSIONS) \
+		--perturbations $(WOMBAT_V1_PERTURBATIONS) \
+		--xco2-daily-base $(WOMBAT_V1_XCO2_DAILY_BASE) \
+		--xco2-daily-201601r02 $(WOMBAT_V1_XCO2_DAILY_201601R02) \
+		--xco2-daily-201601r06 $(WOMBAT_V1_XCO2_DAILY_201601R06) \
+		--output $@
 
 $(4_RESULTS_FIGURES_DIR)/average-and-trend-map.pdf: \
 	$(4_RESULTS_SRC_DIR)/average-and-trend-map.R \
@@ -247,6 +271,14 @@ $(4_RESULTS_FIGURES_DIR)/sib4-fluxes.pdf: \
 		--area-1x1 $(AREA_1X1) \
 		--sib4-climatology-assim $(SIB4_CLIMATOLOGY_ASSIM) \
 		--sib4-climatology-resp-tot $(SIB4_CLIMATOLOGY_RESP_TOT) \
+		--sib4-monthly $(SIB4_MONTHLY) \
+		--output $@
+
+$(4_RESULTS_FIGURES_DIR)/sib4-flux-tropical-cell.pdf: \
+	$(4_RESULTS_SRC_DIR)/sib4-flux-tropical-cell.R \
+	$(SIB4_MONTHLY) \
+	$(DISPLAY_PARTIAL)
+	Rscript $< \
 		--sib4-monthly $(SIB4_MONTHLY) \
 		--output $@
 

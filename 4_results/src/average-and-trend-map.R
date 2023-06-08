@@ -166,14 +166,14 @@ output <- wrap_plots(
       panel = grid::textGrob('Average NEE flux from\nJanuary 2015 to December 2020')
     ),
     average_column,
-    heights = c(0.07, 1)
+    heights = c(0.08, 1)
   ),
   wrap_plots(
     wrap_elements(
       panel = grid::textGrob('Trend in NEE')
     ),
     trend_column,
-    heights = c(0.07, 1)
+    heights = c(0.08, 1)
   ),
   nrow = 1
 )
