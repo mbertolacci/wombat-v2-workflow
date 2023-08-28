@@ -241,7 +241,7 @@ observation_parts <- lapply(hyperparameter_group_indices, function(i) {
 
 offset_parts <- lapply(observation_parts, getElement, 'offset')
 
-hyperparameter_estimates_raw <- read_fst(args$hyperparameter_estimates)
+hyperparameter_estimates <- read_fst(args$hyperparameter_estimates)
 
 Sigma_epsilon_parts <- lapply(hyperparameter_group_indices, function(i) {
   observations_i <- observation_parts[[i]]
